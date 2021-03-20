@@ -30,7 +30,7 @@ export const katas = [
     title: "Break camelCase",
     ku: 6,
     code:
-      "https://gitlab.com/MeRichard123/code-war-katas/-/blob/master/break-camelcase.pyy",
+      "https://gitlab.com/MeRichard123/code-war-katas/-/blob/master/break-camelcase.py",
     challenge: "https://www.codewars.com/kata/5208f99aee097e6552000148",
   },
   {
