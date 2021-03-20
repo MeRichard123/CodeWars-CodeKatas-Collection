@@ -48,21 +48,6 @@ export default {
       searchTerm: "",
     };
   },
-  // methods: {
-  //   updateList() {
-  //     this.katas = katas;
-
-  //     const filtered = this.katas.filter(
-  //       (item) => item.ku === Number(this.kataRank)
-  //     );
-  //     console.log(filtered);
-  //     if (filtered.length >= 1) {
-  //       this.katas = filtered;
-  //     } else {
-  //       this.katas = katas;
-  //     }
-  //   },
-  // },
   watch: {
     kataRank() {
       this.katas = katas;
