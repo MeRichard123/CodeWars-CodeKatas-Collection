@@ -1,8 +1,64 @@
+<script setup>
+import Card from "./components/Card";
+import { katas } from "./data.js";
+import { ref, computed, watch } from "vue";
+
+// Create State
+const kataRank = ref("Select Rank");
+const searchTerm = ref("");
+const kataData = ref(katas);
+
+// Filter the kata's by Kyu
+const updateList = () => {
+  kataData.value = katas;
+  const filtered = kataData.value.filter(
+    (item) => item.ku === Number(kataRank.value)
+  );
+  if (filtered.length >= 1) {
+    kataData.value = filtered;
+  } else {
+    kataData.value = katas;
+  }
+};
+
+// Filter by search - with 0.5s debounce
+let debounceTimeout;
+watch(
+  () => searchTerm.value,
+  () => {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+      if (searchTerm.value == "") {
+        kataData.value = katas;
+      }
+      const filtered = kataData.value.filter(
+        (item) =>
+          item.title.toUpperCase().indexOf(searchTerm.value.toUpperCase()) > -1
+      );
+      if (filtered.length > 0) {
+        kataData.value = filtered;
+      } else {
+        kataData.value = katas;
+      }
+    }, 500);
+  }
+);
+
+// Computed Property for the length
+const CodeCount = computed(() => {
+  return kataData.value.length;
+});
+
+// This has no purpose than to stop the linter complaining
+const that = [Card, CodeCount, updateList];
+console.log(that);
+</script>
+
 <template>
   <h1 class="title">Richard’s CodeWars Code Katas</h1>
   <div>
     <input type="text" placeholder="Search..." v-model="searchTerm" />
-    <select name="" id="" v-model="kataRank">
+    <select name="" id="" v-model="kataRank" @change="updateList">
       <option value="Select Rank">Select Rank</option>
       <option value="1">1 Kyu</option>
       <option value="2">2 Kyu</option>
@@ -16,7 +72,7 @@
   </div>
   <p class="count">Number of Challenges: {{ CodeCount }}</p>
   <div class="card-container">
-    <Card v-for="challenge in katas" :key="challenge.id">
+    <Card v-for="challenge in kataData" :key="challenge.id">
       <template v-slot:title>
         <h1>{{ challenge.title }}</h1>
       </template>
@@ -33,78 +89,7 @@
   </div>
 </template>
 
-<script>
-import Card from "./components/Card";
-import { katas } from "./data.js";
-export default {
-  name: "App",
-  components: {
-    Card,
-  },
-  data() {
-    return {
-      katas: katas,
-      kataRank: "Select Rank",
-      searchTerm: "",
-    };
-  },
-  // methods: {
-  //   updateList() {
-  //     this.katas = katas;
-
-  //     const filtered = this.katas.filter(
-  //       (item) => item.ku === Number(this.kataRank)
-  //     );
-  //     console.log(filtered);
-  //     if (filtered.length >= 1) {
-  //       this.katas = filtered;
-  //     } else {
-  //       this.katas = katas;
-  //     }
-  //   },
-  // },
-  watch: {
-    kataRank() {
-      this.katas = katas;
-
-      const filtered = this.katas.filter(
-        (item) => item.ku === Number(this.kataRank)
-      );
-      console.log(filtered);
-      if (filtered.length >= 1) {
-        this.katas = filtered;
-      } else {
-        this.katas = katas;
-      }
-    },
-    searchTerm() {
-      let debounceTimeout;
-      clearTimeout(debounceTimeout);
-      debounceTimeout = setTimeout(() => {
-        if (this.searchTerm == "") {
-          this.katas = katas;
-        }
-        const filtered = this.katas.filter(
-          (item) =>
-            item.title.toUpperCase().indexOf(this.searchTerm.toUpperCase()) > -1
-        );
-        if (filtered.length > 0) {
-          this.katas = filtered;
-        } else {
-          this.katas = katas;
-        }
-      }, 500);
-    },
-  },
-  computed: {
-    CodeCount() {
-      return this.katas.length;
-    },
-  },
-};
-</script>
-
-<style>
+<style lang="css">
 #app {
   font-family: "Ribeye", cursive;
   -webkit-font-smoothing: antialiased;
