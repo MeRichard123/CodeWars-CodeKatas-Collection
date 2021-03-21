@@ -153,4 +153,12 @@ export const katas = [
       "https://gitlab.com/MeRichard123/code-war-katas/-/blob/master/isTriangle.py",
     challenge: "https://www.codewars.com/kata/56606694ec01347ce800001b",
   },
+  {
+    id: uuidv4(),
+    title: "Meeting",
+    ku: 6,
+    code:
+      "https://gitlab.com/MeRichard123/code-war-katas/-/blob/master/meeting.py",
+    challenge: "https://www.codewars.com/kata/59df2f8f08c6cec835000012",
+  },
 ];
