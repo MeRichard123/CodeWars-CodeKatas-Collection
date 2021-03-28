@@ -1,89 +1,111 @@
 <template>
   <h1 class="title">Richard’s CodeWars Code Katas</h1>
   <div>
-    <input type="text" placeholder="Search..." v-model="searchTerm" />
-    <select name="" id="" v-model="kataRank">
-      <option value="Select Rank">Select Rank</option>
-      <option value="1">1 Kyu</option>
-      <option value="2">2 Kyu</option>
-      <option value="3">3 Kyu</option>
-      <option value="4">4 Kyu</option>
-      <option value="5">5 Kyu</option>
-      <option value="6">6 Kyu</option>
-      <option value="7">7 Kyu</option>
-      <option value="8">8 Kyu</option>
-    </select>
+    <div class="input-group">
+      <div class="input">
+        <label for="search">Search by Title:</label>
+        <input
+          id="search"
+          placeholder="Search..."
+          @input="debounceSearch($event)"
+        />
+      </div>
+      <div class="input">
+        <label for="select">Select Rank:</label>
+        <select name="Kata Rank" id="select" v-model.number="kataRank">
+          <option value="">All Katas</option>
+          <option value="1">1 Kyu</option>
+          <option value="2">2 Kyu</option>
+          <option value="3">3 Kyu</option>
+          <option value="4">4 Kyu</option>
+          <option value="5">5 Kyu</option>
+          <option value="6">6 Kyu</option>
+          <option value="7">7 Kyu</option>
+          <option value="8">8 Kyu</option>
+        </select>
+      </div>
+    </div>
   </div>
-  <p class="count">Number of Challenges: {{ CodeCount }}</p>
+  <p class="count">Number of Challenges: {{ filteredKatas.length }}</p>
   <div class="card-container">
-    <Card v-for="challenge in katas" :key="challenge.id">
-      <template v-slot:title>
-        <h1>{{ challenge.title }}</h1>
-      </template>
-      <template v-slot:hidden>
-        <h2>{{ challenge.ku }} Kyu</h2>
-        <a :href="challenge.code" target="_blank" class="link"
-          >Go to my solution</a
-        >
-        <a :href="challenge.challenge" target="_blank" class="link"
-          >Try the Challenge</a
-        >
-      </template>
-    </Card>
+    <template v-if="!filteredKatas.length">
+      No matching katas
+    </template>
+    <template v-else>
+      <BaseCard
+        v-for="(challenge, index) in filteredKatas"
+        :key="'kata' + index"
+      >
+        <template v-slot:title>
+          <h1>{{ challenge.title }}</h1>
+        </template>
+        <template v-slot:hidden>
+          <h2>{{ challenge.kyu }} Kyu</h2>
+          <a
+            :href="challenge.code"
+            v-text="solText"
+            target="_blank"
+            class="link"
+          />
+          <a
+            :href="challenge.challenge"
+            v-text="challText"
+            target="_blank"
+            class="link"
+          />
+        </template>
+      </BaseCard>
+    </template>
   </div>
 </template>
 
 <script>
-import Card from "./components/Card";
+import BaseCard from "./components/BaseCard.vue";
 import { katas } from "./data.js";
+let debounceTimeout;
+
 export default {
   name: "App",
   components: {
-    Card,
+    BaseCard,
   },
   data() {
     return {
       katas: katas,
-      kataRank: "Select Rank",
+      kataRank: "",
       searchTerm: "",
+      solText: "Go to my solution",
+      challText: "Try the Challenge",
     };
   },
-  watch: {
-    kataRank() {
-      this.katas = katas;
-
-      const filtered = this.katas.filter(
-        (item) => item.ku === Number(this.kataRank)
-      );
-      console.log(filtered);
-      if (filtered.length >= 1) {
-        this.katas = filtered;
-      } else {
-        this.katas = katas;
+  methods: {
+    debounceSearch(event) {
+      if (debounceTimeout) {
+        clearTimeout(debounceTimeout);
       }
-    },
-    searchTerm() {
-      let debounceTimeout;
-      clearTimeout(debounceTimeout);
       debounceTimeout = setTimeout(() => {
-        if (this.searchTerm == "") {
-          this.katas = katas;
-        }
-        const filtered = this.katas.filter(
-          (item) =>
-            item.title.toUpperCase().indexOf(this.searchTerm.toUpperCase()) > -1
-        );
-        if (filtered.length > 0) {
-          this.katas = filtered;
-        } else {
-          this.katas = katas;
-        }
+        this.searchTerm = event.target.value;
       }, 500);
     },
   },
   computed: {
-    CodeCount() {
-      return this.katas.length;
+    filteredKatas() {
+      let filteredKatas = this.katas;
+      if (this.kataRank) {
+        const katasFilteredByRank = filteredKatas.filter(
+          (kata) => kata.kyu == this.kataRank
+        );
+        filteredKatas = katasFilteredByRank;
+      }
+      if (this.searchTerm) {
+        const katasFilteredBySearch = filteredKatas.filter((kata) => {
+          const searchTerm = this.searchTerm.toLowerCase();
+          const title = kata.title.toLowerCase();
+          return title.includes(searchTerm);
+        });
+        filteredKatas = katasFilteredBySearch;
+      }
+      return filteredKatas;
     },
   },
 };
@@ -100,16 +122,16 @@ export default {
 }
 .title {
   font-size: clamp(1.5rem, 2.5rem, 6rem);
-  margin: 10px;
+  margin: 10px 10px 30px 10px;
 }
 .link {
-  color: white;
+  color: #fff;
   margin: 5px;
 }
 h2 {
-  color: white;
+  color: #fff;
   padding: 5px 10px;
-  border: 2px solid white;
+  border: 2px solid #fff;
   border-radius: 100vh;
 }
 .card-container {
@@ -121,11 +143,11 @@ h2 {
 }
 input,
 select {
-  margin: 30px 0;
-  padding: 15px 30px;
-  outline-color: black;
-  color: #2c3e50;
   font-family: "Ribeye", cursive;
+  color: #2c3e50;
+  margin: 30px 0px;
+  padding: 15px 30px;
+  outline-color: #000;
 }
 option {
   color: #2c3e50;
@@ -135,5 +157,19 @@ input {
 }
 .count {
   font-size: 1.3rem;
+}
+.input-group {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.input {
+  position: relative;
+  margin: 2px;
+}
+.input label {
+  position: absolute;
+  top: 0px;
+  left: 10px;
 }
 </style>

@@ -21,7 +21,7 @@
         <h1>{{ challenge.title }}</h1>
       </template>
       <template v-slot:hidden>
-        <h2>{{ challenge.ku }} Kyu</h2>
+        <h2>{{ challenge.kyu }} Kyu</h2>
         <a :href="challenge.code" target="_blank" class="link"
           >Go to my solution</a
         >
@@ -49,7 +49,7 @@ export default {
     const updateList = () => {
       kataData.value = katas;
       const filtered = kataData.value.filter(
-        (item) => item.ku === Number(kataRank.value)
+        (item) => item.kyu === Number(kataRank.value)
       );
       if (filtered.length >= 1) {
         kataData.value = filtered;
